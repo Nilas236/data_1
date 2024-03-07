@@ -1,0 +1,40 @@
+---
+- hosts: "all"
+  become: true
+  tasks:
+  - name: "Install nginx via apt"
+    ansible.builtin.apt:
+      name: "nginx"
+      state: "latest"
+      update_cache: true
+  - name: "Delete /var/www/html folder"
+    ansible.builtin.file:
+      path: "/var/www/html"
+      state: "absent"
+  - name: "Copy our le"
+    ansible.builtin.copy:
+      src: "/vagrant/html"
+      dest: "/var/www/"
+      owner: "vagrant"
+      group: "vagrant"
+      mode: "0644"
+  - name: "Set up user"
+    community.mysql.mysql_user:
+      name: "root"
+      password: "password"
+      login_user: "root"
+      login_password: "password"
+      check_implicit_admin: true
+      login_unix_socket: "/var/run/mysqld/mysqld.sock"
+  - name: "Remove anonym users"
+    community.mysql.mysql_user:
+      name: ""
+      state: "absent"
+      login_user: "root"
+      login_password: "password"
+  - name: "Remove test database"
+    community.mysql.mysql_user:
+      name: "test"
+      state: "absent"
+      login_user: "root"
+      login_password: "password"
